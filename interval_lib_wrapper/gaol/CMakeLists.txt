@@ -26,8 +26,8 @@ if (MATHLIB_INCDIR AND MATHLIB_LIB)
 else()
   message (STATUS "Will install and use mathlib from 3rd/ subdirectory")
   ExternalProject_Add (libultim_3rd
-                        PREFIX mathlib-2.1.0
-                        URL ${CMAKE_CURRENT_SOURCE_DIR}/3rd/mathlib-2.1.0.tar.gz
+                        PREFIX mathlib-2.1.1
+                        URL ${CMAKE_CURRENT_SOURCE_DIR}/3rd/mathlib-2.1.1.tar.gz
                         BUILD_IN_SOURCE 1
                         CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR>
                                                       CFLAGS=${CMAKE_C_FLAGS}
