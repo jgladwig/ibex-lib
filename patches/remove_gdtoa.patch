@@ -1,0 +1,83 @@
+diff --git a/interval_lib_wrapper/gaol/CMakeLists.txt b/interval_lib_wrapper/gaol/CMakeLists.txt
+index 9a7d3343..59f9759d 100644
+--- a/interval_lib_wrapper/gaol/CMakeLists.txt
++++ b/interval_lib_wrapper/gaol/CMakeLists.txt
+@@ -65,8 +65,6 @@ endif()
+ ################################################################################
+ # Looking for gaol/gaol.h, result is written in GAOL_INCDIR
+ find_header_custom (GAOL "gaol/gaol.h" PATHS "${GAOL_DIR}")
+-# Looking for gdtoa library, result is written in GDTOA_LIB
+-find_library_custom (GDTOA "gdtoa" PATHS "${GAOL_DIR}")
+ # Looking for gaol library, result is written in GAOL_LIB
+ find_library_custom (GAOL "gaol" PATHS "${GAOL_DIR}")
+ 
+@@ -77,16 +75,12 @@ if (COMPILER_SUPPORTS_WNO_DEPRECATED)
+   set (gaol_compile_option COMPILE_OPTIONS -Wno-deprecated)
+ endif()
+ 
+-if (GAOL_INCDIR AND GAOL_LIB AND GDTOA_LIB)
+-  create_target_import_and_export (gdtoa ${GDTOA_LIB} GDTOA_EXPORTFILE
+-                                    NAMESPACE Ibex::
+-                                    ${gaol_compile_option}
+-                                    INCLUDE_DIRECTORIES ${GAOL_INCDIR})
++if (GAOL_INCDIR AND GAOL_LIB)
+   create_target_import_and_export (gaol ${GAOL_LIB} GAOL_EXPORTFILE
+                                     NAMESPACE Ibex::
+                                     ${gaol_compile_option}
+                                     INCLUDE_DIRECTORIES ${GAOL_INCDIR}
+-                                    LINK_LIBRARIES Ibex::gdtoa Ibex::ultim)
++                                    LINK_LIBRARIES Ibex::ultim)
+ else ()
+   message (STATUS "Will install and use library gaol from 3rd/ subdirectory")
+   if (TARGET libultim_3rd)
+@@ -123,7 +117,6 @@ else ()
+ 
+   # absolute path to the library
+   lib_get_abspath_from_name (GAOL_LIB ${INSTALL_DIR}/lib gaol)
+-  lib_get_abspath_from_name (GDTOA_LIB ${INSTALL_DIR}/lib gdtoa)
+ 
+   # this directory needs to exist during generation step to avoid CMake errors
+   file (MAKE_DIRECTORY "${_incdir}")
+@@ -134,21 +127,15 @@ else ()
+ 
+   #
+   set (_incdir $<BUILD_INTERFACE:${_incdir}>$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR_3RD}>)
+-  create_target_import_and_export (gdtoa ${GDTOA_LIB} GDTOA_EXPORTFILE INSTALL
+-                                    NAMESPACE Ibex::
+-                                    ${gaol_compile_option}
+-                                    INCLUDE_DIRECTORIES ${_incdir}
+-                                    COMPONENT devtools
+-                                    DEPENDS libgaol_3rd)
+   create_target_import_and_export (gaol ${GAOL_LIB} GAOL_EXPORTFILE INSTALL
+                                     NAMESPACE Ibex::
+                                     ${gaol_compile_option}
+                                     COMPONENT devtools
+                                     INCLUDE_DIRECTORIES ${_incdir}
+-                                    LINK_LIBRARIES Ibex::gdtoa Ibex::ultim
++                                    LINK_LIBRARIES Ibex::ultim
+                                     DEPENDS libgaol_3rd)
+   unset (INSTALL_DIR)
+ endif ()
+ 
+-list (APPEND EXPORTFILES "${MATHLIB_EXPORTFILE}" "${GDTOA_EXPORTFILE}" "${GAOL_EXPORTFILE}")
++list (APPEND EXPORTFILES "${MATHLIB_EXPORTFILE}" "${GAOL_EXPORTFILE}")
+ set (EXPORTFILES "${EXPORTFILES}" PARENT_SCOPE)
+diff --git a/interval_lib_wrapper/gaol/wscript b/interval_lib_wrapper/gaol/wscript
+index 74ab0a0e..1d5aebc7 100644
+--- a/interval_lib_wrapper/gaol/wscript
++++ b/interval_lib_wrapper/gaol/wscript
+@@ -133,13 +133,7 @@ def configure (conf):
+ 				conf_args = args)
+ 		_, gaol_include, gaol_lib = gaol_ret
+ 		conf.env.INSTALL_3RD = True
+-		conf.env.append_unique ("LIB_3RD_LIST", [ "gdtoa", "gaol" ] )
+-
+-	# Looking for gdtoa header and library (it should be provided gaol)
+-	conf.check_cxx (header_name = "gdtoa/gdtoa.h", includes = gaol_include,
+-		use = [ "IBEX", "ITV_LIB" ], uselib_store="ITV_LIB")
+-	conf.check_cxx (lib = "gdtoa", libpath = gaol_lib,
+-		use = [ "IBEX", "ITV_LIB" ], uselib_store = "ITV_LIB")
++		conf.env.append_unique ("LIB_3RD_LIST", [ "gaol" ] )
+ 
+ 	# Looking for gaol headers and library.
+ 	# We also test if we need to add sse2 or sse3 flags.
