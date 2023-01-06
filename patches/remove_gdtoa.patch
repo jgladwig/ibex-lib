@@ -1,0 +1,75 @@
+diff --git a/interval_lib_wrapper/gaol/CMakeLists.txt b/interval_lib_wrapper/gaol/CMakeLists.txt
+index 76397b20..5835cb9d 100644
+--- a/interval_lib_wrapper/gaol/CMakeLists.txt
++++ b/interval_lib_wrapper/gaol/CMakeLists.txt
+@@ -61,7 +61,7 @@ else()
+ endif()
+ 
+ # Looking for libgaol and libdtoa
+-foreach (LIB gdtoa gaol)
++foreach (LIB gaol)
+   set (MSG "Looking for ${LIB}")
+   message (STATUS "${MSG}")
+   find_library (${LIB}_LIBRARY NAMES ${LIB} HINTS ${GAOL_DIR} PATH_SUFFIXES lib
+@@ -73,7 +73,7 @@ foreach (LIB gdtoa gaol)
+   endif()
+ endforeach ()
+ 
+-if (NOT gaol_INCLUDE_DIR OR NOT gaol_LIBRARY OR NOT gdtoa_LIBRARY)
++if (NOT gaol_INCLUDE_DIR OR NOT gaol_LIBRARY)
+   message (STATUS "Will install and use library gaol from 3rd/ subdirectory")
+   if (TARGET libultim_3rd)
+     set (_gaol_depends "DEPENDS" "libultim_3rd")
+@@ -94,18 +94,16 @@ if (NOT gaol_INCLUDE_DIR OR NOT gaol_LIBRARY OR NOT gdtoa_LIBRARY)
+   file (MAKE_DIRECTORY "${_incdir}") # need to exist during generation step
+   #
+   lib_full_path (gaol_LIBRARY ${INSTALL_DIR}/lib gaol)
+-  lib_full_path (gdtoa_LIBRARY ${INSTALL_DIR}/lib gdtoa)
+   install (FILES ${gaol_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR_3RD})
+-  install (FILES ${gdtoa_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR_3RD})
+   unset (INSTALL_DIR)
+ endif ()
+ # do not show vars in list of options
+-mark_as_advanced (gaol_INCLUDE_DIR gdtoa_LIBRARY gaol_LIBRARY)
++mark_as_advanced (gaol_INCLUDE_DIR gaol_LIBRARY)
+ 
+ # set build and install interfaces for LINK_LIBRARIES
+ set (build_interface)
+-list (APPEND install_interface "-lgaol" "-lgdtoa" "-lultim")
+-set (build_interface ${gaol_LIBRARY};${gdtoa_LIBRARY};${ultim_LIBRARY})
++list (APPEND install_interface "-lgaol" "-lultim")
++set (build_interface ${gaol_LIBRARY};${ultim_LIBRARY})
+ set (install_interface)
+ if (MATHLIB_DIR)
+   list (APPEND install_interface "-L${MATHLIB_DIR}")
+@@ -116,7 +114,7 @@ endif ()
+ if (TARGET libultim_3rd OR TARGET libgaol_3rd)
+   list (APPEND install_interface "-L$<INSTALL_PREFIX>/${CMAKE_INSTALL_LIBDIR_3RD}")
+ endif ()
+-list (APPEND install_interface "-lgaol" "-lgdtoa" "-lultim")
++list (APPEND install_interface "-lgaol" "-lultim")
+ set (link_libraries $<BUILD_INTERFACE:${build_interface}>$<INSTALL_INTERFACE:${install_interface}>)
+ 
+ ################################################################################
+diff --git a/interval_lib_wrapper/gaol/wscript b/interval_lib_wrapper/gaol/wscript
+index 74ab0a0e..82a25dba 100644
+--- a/interval_lib_wrapper/gaol/wscript
++++ b/interval_lib_wrapper/gaol/wscript
+@@ -133,15 +133,9 @@ def configure (conf):
+ 				conf_args = args)
+ 		_, gaol_include, gaol_lib = gaol_ret
+ 		conf.env.INSTALL_3RD = True
+-		conf.env.append_unique ("LIB_3RD_LIST", [ "gdtoa", "gaol" ] )
++		conf.env.append_unique ("LIB_3RD_LIST", [ "gaol" ] )
+ 
+-	# Looking for gdtoa header and library (it should be provided gaol)
+-	conf.check_cxx (header_name = "gdtoa/gdtoa.h", includes = gaol_include,
+-		use = [ "IBEX", "ITV_LIB" ], uselib_store="ITV_LIB")
+-	conf.check_cxx (lib = "gdtoa", libpath = gaol_lib,
+-		use = [ "IBEX", "ITV_LIB" ], uselib_store = "ITV_LIB")
+-
+-	# Looking for gaol headers and library.
++    # Looking for gaol headers and library.
+ 	# We also test if we need to add sse2 or sse3 flags.
+ 	D = {"header_name": "gaol/gaol.h", "mandatory": False, "errmsg": "no",
+ 				"includes": gaol_include, "use": [ "IBEX", "ITV_LIB" ],
